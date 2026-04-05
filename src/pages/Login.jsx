@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
+import { loginUser } from "../services/authApi"
 
 export default function Login(){
 
@@ -8,30 +9,47 @@ const navigate = useNavigate()
 const [email,setEmail] = useState("")
 const [password,setPassword] = useState("")
 const [error,setError] = useState("")
+const [loading,setLoading] = useState(false)
 
-// Fake test credentials
-const testUser = {
-email: "test@task.com",
-password: "123456"
-}
-
-const handleLogin = (e) => {
+const handleLogin = async (e) => {
 
 e.preventDefault()
 
-if(email === testUser.email && password === testUser.password){
+if(!email || !password){
+setError("Please enter email and password")
+return
+}
 
-// Fake JWT token simulation
-const fakeToken = "fake_jwt_token_123"
+try{
 
-localStorage.setItem("token", fakeToken)
+setLoading(true)
+setError("")
 
-// Navigate to workspace selection
+const response = await loginUser({
+email,
+password
+})
+
+// token from backend
+const token = response.token
+
+// store token
+localStorage.setItem("token", token)
+
+// navigate to workspace
 navigate("/workspace")
 
-}else{
+}catch(err){
 
-setError("Invalid email or password")
+console.error(err)
+
+setError(
+err.response?.data?.message || "Invalid email or password"
+)
+
+}finally{
+
+setLoading(false)
 
 }
 
@@ -82,16 +100,6 @@ Login
 </h2>
 
 
-{/* Test Credentials */}
-
-<div className="mb-4 p-3 rounded bg-gray-200 dark:bg-darkbg text-sm">
-
-<p><strong>Test Email:</strong> test@task.com</p>
-<p><strong>Password:</strong> 123456</p>
-
-</div>
-
-
 {/* Email */}
 
 <input
@@ -133,11 +141,12 @@ bg-white dark:bg-darkbg text-black dark:text-white"
 
 <button
 type="submit"
+disabled={loading}
 className="w-full bg-silver text-black p-3 rounded-lg
-font-semibold hover:opacity-90 transition"
+font-semibold hover:opacity-90 transition disabled:opacity-50"
 >
 
-Login
+{loading ? "Logging in..." : "Login"}
 
 </button>
 

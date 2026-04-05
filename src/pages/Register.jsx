@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
+import { registerUser } from "../services/authApi"
 
 export default function Register(){
 
@@ -10,35 +11,53 @@ const [name,setName] = useState("")
 const [email,setEmail] = useState("")
 const [password,setPassword] = useState("")
 const [confirmPassword,setConfirmPassword] = useState("")
+const [loading,setLoading] = useState(false)
 
-const handleRegister = (e) => {
+const handleRegister = async (e) => {
 
-e.preventDefault()
+ e.preventDefault()
 
-// Basic Validation
-if(!userId || !name || !email || !password || !confirmPassword){
-alert("Please fill all fields")
-return
-}
+ // Validation
+ if(!userId || !name || !email || !password || !confirmPassword){
+  alert("Please fill all fields")
+  return
+ }
 
-if(password !== confirmPassword){
-alert("Passwords do not match")
-return
-}
+ if(password !== confirmPassword){
+  alert("Passwords do not match")
+  return
+ }
 
-// Future Backend Data
-const userData = {
-userId,
-name,
-email,
-password
-}
+ const userData = {
+  userId,
+  name,
+  email,
+  password
+ }
 
-console.log("User Registered:", userData)
+ try{
 
-// Later connect backend API here
+  setLoading(true)
 
-navigate("/login")
+  await registerUser(userData)
+
+  alert("Registration Successful")
+
+  navigate("/login")
+
+ }catch(error){
+
+  console.error("Register Error:", error)
+
+  if(error.response?.data?.message){
+   alert(error.response.data.message)
+  }else{
+   alert("Registration failed. Please try again.")
+  }
+
+ }finally{
+  setLoading(false)
+ }
 
 }
 
@@ -156,11 +175,12 @@ bg-white dark:bg-darkbg text-black dark:text-white"
 
 <button
 type="submit"
+disabled={loading}
 className="w-full bg-silver text-black p-3 rounded-lg
-font-semibold hover:opacity-90 transition"
+font-semibold hover:opacity-90 transition disabled:opacity-50"
 >
 
-Register
+{loading ? "Creating Account..." : "Register"}
 
 </button>
 
