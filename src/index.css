@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.dark body {
+  background-color: #0B0B0F;
+  color: #ffffff;
+}
+.glowSilver{
+text-shadow:
+0 0 5px #C0C0C0,
+0 0 10px #C0C0C0,
+0 0 20px #C0C0C0;
+}
